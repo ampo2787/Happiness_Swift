@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol FaceViewDelegate {
+protocol FaceViewDelegate:class {
     func smilenessForFaceView(requestor:FaceView) -> CGFloat
 }
 
@@ -18,21 +18,22 @@ class FaceView: UIView {
     let MAX_FACE_SCALE:CGFloat = 1.5
     let DEFAULT_FACE_SCALE:CGFloat = 0.9
     
-    let MAX_SMILENESS = 1.0
-    let MIN_SMILENESS = -1.0
+    let MAX_SMILENESS:CGFloat = 1.0
+    let MIN_SMILENESS:CGFloat = -1.0
     
-    var delegate : FaceViewDelegate?
+    weak var delegate : FaceViewDelegate?
     var faceScale: CGFloat?
+    //var smileness: CGFloat?
     
-    func smileness() -> CGFloat{
-        var smileness:CGFloat = (delegate?.smilenessForFaceView(requestor: self))!
+    func getSmileness() -> CGFloat{
+        var _smileness:CGFloat = (delegate?.smilenessForFaceView(requestor: self))!
         
-        if smileness < MIN_FACE_SCALE {
-            smileness = MIN_FACE_SCALE
-        } else if smileness > MAX_FACE_SCALE {
-            smileness = MAX_FACE_SCALE
+        if _smileness < MIN_SMILENESS {
+            _smileness = MIN_SMILENESS
+        } else if _smileness > MAX_SMILENESS {
+            _smileness = MAX_SMILENESS
         }
-        return smileness
+        return _smileness
     }
     
     func reset() {
@@ -50,11 +51,8 @@ class FaceView: UIView {
             faceScale = newScale
         }
     }
-    
-    func drawRect(dirtRect:CGRect) {
-        var faceCenterPoint:CGPoint!
-        faceCenterPoint.x = self.bounds.origin.x + self.bounds.size.width / 2
-        faceCenterPoint.y = self.bounds.origin.y + self.bounds.size.height / 2
+    override func draw(_ rect: CGRect) {
+        let faceCenterPoint:CGPoint = CGPoint.init(x: self.bounds.origin.x + self.bounds.size.width / 2, y: self.bounds.origin.y + self.bounds.size.height / 2)
         
         var faceRadius:CGFloat = self.bounds.size.width/2
         if self.bounds.size.width > self.bounds.size.height {
@@ -69,8 +67,8 @@ class FaceView: UIView {
         self.drawMouthBasedOnFaceCenterPoint(faceCenterPoint: faceCenterPoint, faceRadius: faceRadius, context: context)
         self.drawNoseBasedOnFaceCenterPoint(faceCenterPoint: faceCenterPoint, faceRadius: faceRadius, context: context)
         self.drawEyesBasedOnFaceCenterPoint(faceCenterPoint: faceCenterPoint, faceRadius: faceRadius, context: context)
-        self.drawEyebrowBasedOnFaceCenterPoint(faceCenterPoint: faceCenterPoint, faceRadius: faceRadius, context: context)
-        self.drawEyebrow2BasedOnFaceCenterPoint(faceCenterPoint: faceCenterPoint, faceRadius: faceRadius, context: context)
+        //self.drawEyebrowBasedOnFaceCenterPoint(faceCenterPoint: faceCenterPoint, faceRadius: faceRadius, context: context)
+        //self.drawEyebrow2BasedOnFaceCenterPoint(faceCenterPoint: faceCenterPoint, faceRadius: faceRadius, context: context)
     }
     
     func drawFaceAtCenterPoint(centerPoint:CGPoint, radius:CGFloat, context:CGContext) {
@@ -86,7 +84,7 @@ class FaceView: UIView {
         UIGraphicsPushContext(context)
         
         context.beginPath()
-        context.addArc(center: centerPoint, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
+        context.addArc(center: centerPoint, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: false)
         context.fillPath()
         context.strokePath()
         UIGraphicsPopContext()
@@ -97,11 +95,12 @@ class FaceView: UIView {
     let EYE_RadiusRatio = 0.15
     
     func drawEyesBasedOnFaceCenterPoint(faceCenterPoint:CGPoint, faceRadius:CGFloat, context:CGContext) {
-        var eyePoint:CGPoint!
+        
         let eyeHorizontalOffset:CGFloat = faceRadius * EYE_HorizontalOffsetRatio
         let eyeVerticalOffset : CGFloat = faceRadius * EYE_VerticalOffsetRatio
         let eyeRadius:CGFloat = faceRadius * CGFloat(EYE_RadiusRatio)
         
+        var eyePoint:CGPoint = CGPoint.init()
         eyePoint.x = faceCenterPoint.x - eyeHorizontalOffset
         eyePoint.y = faceCenterPoint.y - eyeVerticalOffset
         
@@ -128,24 +127,26 @@ class FaceView: UIView {
     let MOUTH_RadiusRatio:CGFloat = 0.3
     
     func drawMouthBasedOnFaceCenterPoint(faceCenterPoint:CGPoint, faceRadius:CGFloat, context:CGContext) {
-        var mouthLeftPoint:CGPoint!
+        
+        
         let mouthHorizontalOffset = faceRadius * MOUTH_HorizontalOffsetRatio
         let mouthVerticalOffset = faceRadius * MOUTH_VerticalOffsetRatio
+        var mouthLeftPoint:CGPoint = CGPoint.init()
         mouthLeftPoint.x = faceCenterPoint.x - mouthHorizontalOffset
         mouthLeftPoint.y = faceCenterPoint.y + mouthVerticalOffset
         
-        var mouthRightPoint:CGPoint!
+        var mouthRightPoint:CGPoint = CGPoint.init()
         mouthRightPoint.x = faceCenterPoint.x + mouthHorizontalOffset
         mouthRightPoint.y = faceCenterPoint.y + mouthVerticalOffset
         
         var mouthLeftControlPoint = mouthLeftPoint
-        mouthLeftControlPoint?.x += mouthHorizontalOffset * (2.0/3.0)
+        mouthLeftControlPoint.x += mouthHorizontalOffset * (2.0/3.0)
         var mouthRightControlPoint = mouthRightPoint
-        mouthRightControlPoint?.x -= mouthHorizontalOffset * (2.0/3.0)
+        mouthRightControlPoint.x -= mouthHorizontalOffset * (2.0/3.0)
         
-        let smileOffset:CGFloat = (faceRadius * MOUTH_RadiusRatio) * self.smileness()
-        mouthLeftControlPoint?.y += smileOffset
-        mouthRightControlPoint?.y -= smileOffset
+        let smileOffset:CGFloat = (faceRadius * MOUTH_RadiusRatio) * self.getSmileness()
+        mouthLeftControlPoint.y += smileOffset
+        mouthRightControlPoint.y -= smileOffset
         
         context.setLineWidth(0.5)
         UIColor.green.setStroke()
@@ -159,9 +160,9 @@ class FaceView: UIView {
             context.strokePath()
         }
         else{
-            context.addCurve(to: mouthRightPoint, control1: mouthLeftControlPoint!, control2: mouthRightControlPoint!)
+            context.addCurve(to: mouthRightPoint, control1: mouthLeftControlPoint, control2: mouthRightControlPoint)
             context.move(to: mouthRightPoint)
-            context.addCurve(to: mouthLeftPoint, control1: mouthLeftControlPoint!, control2: mouthRightControlPoint!)
+            context.addCurve(to: mouthLeftPoint, control1: mouthLeftControlPoint, control2: mouthRightControlPoint)
             context.fillPath()
         }
         UIGraphicsPopContext()
@@ -172,22 +173,23 @@ class FaceView: UIView {
     let EYEBROW_RadiusRatio:CGFloat = 0.02
     
     func drawEyebrowBasedOnFaceCenterPoint(faceCenterPoint:CGPoint, faceRadius:CGFloat, context:CGContext) {
-        var eyebrowLeftPoint:CGPoint!
+        
         let eyebrowHorizontalOffset:CGFloat = faceRadius * EYEBROW_HorizontalOffsetRatio
         let eyebrowVerticalOffset:CGFloat = faceRadius * EYEBROW_VerticalOffsetRatio
+        var eyebrowLeftPoint:CGPoint = CGPoint.init()
         eyebrowLeftPoint.x = faceCenterPoint.x - eyebrowHorizontalOffset
         eyebrowLeftPoint.y = faceCenterPoint.y - eyebrowVerticalOffset
         
-        var eyebrowRightPoint:CGPoint!
+        var eyebrowRightPoint:CGPoint = CGPoint.init()
         eyebrowRightPoint.x = faceCenterPoint.x - eyebrowHorizontalOffset/5
         eyebrowRightPoint.y = faceCenterPoint.y - eyebrowVerticalOffset
         
         var eyebrowLeftControlPoint = eyebrowLeftPoint
         var eyebrowRightControlPoint = eyebrowRightPoint
         
-        let smileOffset = (faceRadius * EYEBROW_RadiusRatio) * self.smileness()
-        eyebrowLeftControlPoint?.y -= smileOffset
-        eyebrowRightControlPoint?.y -= smileOffset
+        let smileOffset = (faceRadius * EYEBROW_RadiusRatio) * self.getSmileness()
+        eyebrowLeftControlPoint.y -= smileOffset
+        eyebrowRightControlPoint.y -= smileOffset
         
         context.setLineWidth(0.5)
         UIColor.red.setStroke()
@@ -202,31 +204,33 @@ class FaceView: UIView {
             context.strokePath()
         }
         else{
-            context.addCurve(to: eyebrowRightPoint, control1: eyebrowLeftControlPoint!, control2: eyebrowRightControlPoint!)
+            context.addCurve(to: eyebrowRightPoint, control1: eyebrowLeftControlPoint, control2: eyebrowRightControlPoint)
             context.move(to: eyebrowRightPoint)
-            context.addCurve(to: eyebrowLeftPoint, control1: eyebrowRightControlPoint!, control2: eyebrowLeftControlPoint!)
+            context.addCurve(to: eyebrowLeftPoint, control1: eyebrowRightControlPoint, control2: eyebrowLeftControlPoint)
             context.fillPath()
         }
         UIGraphicsPopContext()
     }
     
     func drawEyebrow2BasedOnFaceCenterPoint(faceCenterPoint:CGPoint, faceRadius:CGFloat, context:CGContext) {
-        var eyebrowLeftPoint:CGPoint!
+        
         let eyebrowHorizontalOffset:CGFloat = faceRadius * EYEBROW_HorizontalOffsetRatio
         let eyebrowVerticalOffset:CGFloat = faceRadius * EYEBROW_VerticalOffsetRatio
+        
+        var eyebrowLeftPoint:CGPoint = CGPoint.init()
         eyebrowLeftPoint.x = faceCenterPoint.x - eyebrowHorizontalOffset/5
         eyebrowLeftPoint.y = faceCenterPoint.y - eyebrowVerticalOffset
         
-        var eyebrowRightPoint:CGPoint!
+        var eyebrowRightPoint:CGPoint = CGPoint.init()
         eyebrowRightPoint.x = faceCenterPoint.x - eyebrowHorizontalOffset
         eyebrowRightPoint.y = faceCenterPoint.y - eyebrowVerticalOffset
         
         var eyebrowLeftControlPoint = eyebrowLeftPoint
         var eyebrowRightControlPoint = eyebrowRightPoint
         
-        let smileOffset = (faceRadius * EYEBROW_RadiusRatio) * self.smileness()
-        eyebrowLeftControlPoint?.y -= smileOffset
-        eyebrowRightControlPoint?.y -= smileOffset
+        let smileOffset = (faceRadius * EYEBROW_RadiusRatio) * self.getSmileness()
+        eyebrowLeftControlPoint.y -= smileOffset
+        eyebrowRightControlPoint.y -= smileOffset
         
         context.setLineWidth(0.5)
         UIColor.red.setStroke()
@@ -241,9 +245,9 @@ class FaceView: UIView {
             context.strokePath()
         }
         else{
-            context.addCurve(to: eyebrowRightPoint, control1: eyebrowLeftControlPoint!, control2: eyebrowRightControlPoint!)
+            context.addCurve(to: eyebrowRightPoint, control1: eyebrowLeftControlPoint, control2: eyebrowRightControlPoint)
             context.move(to: eyebrowRightPoint)
-            context.addCurve(to: eyebrowLeftPoint, control1: eyebrowRightControlPoint!, control2: eyebrowLeftControlPoint!)
+            context.addCurve(to: eyebrowLeftPoint, control1: eyebrowRightControlPoint, control2: eyebrowLeftControlPoint)
             context.fillPath()
         }
         UIGraphicsPopContext()

@@ -27,7 +27,7 @@
                                 <rect key="frame" x="128" y="500" width="118" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <connections>
-                                    <action selector="happinessSliderChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="Oj7-yc-xkS"/>
+                                    <action selector="happinessSliderChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="KHB-v2-hMg"/>
                                 </connections>
                             </slider>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qfp-4C-QRo">
@@ -42,9 +42,9 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
-                        <outlet property="faceView" destination="uLu-s0-63G" id="ZJ3-LM-ZJj"/>
-                        <outlet property="happinessLabel" destination="qfp-4C-QRo" id="84V-ud-cfp"/>
-                        <outlet property="happinessSlider" destination="swA-xr-ZUY" id="1VD-Ti-Qoo"/>
+                        <outlet property="faceView" destination="uLu-s0-63G" id="IQq-MR-xp9"/>
+                        <outlet property="happinessLabel" destination="qfp-4C-QRo" id="tih-G6-zrr"/>
+                        <outlet property="happinessSlider" destination="swA-xr-ZUY" id="REV-q3-69Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

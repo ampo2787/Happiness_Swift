@@ -15,7 +15,7 @@ class HappinessViewController: UIViewController, FaceViewDelegate{
     @IBOutlet weak var happinessSlider: UISlider!
     
     @IBAction func happinessSliderChanged(_ sender: UISlider) {
-        self.happiness(newHappiness: Int(sender.value))
+        self.sethappiness(newHappiness: Int(sender.value))
     }
     
     var happiness:Int?
@@ -29,16 +29,19 @@ class HappinessViewController: UIViewController, FaceViewDelegate{
         return smileness
     }
     
-    func happiness(newHappiness:Int) {
+    func sethappiness(newHappiness:Int) {
         if newHappiness < MIN_HAPPINESS {
             happiness = MIN_HAPPINESS
         }
         else if newHappiness > MAX_HAPPINESS{
             happiness = MAX_HAPPINESS
         }
-        happiness = newHappiness
+        else{
+            happiness = newHappiness
+        }
         self.updateFaceView()
     }
+    
     
     func updateFaceView() {
         self.happinessSlider.value = Float(self.happiness!)
@@ -49,8 +52,8 @@ class HappinessViewController: UIViewController, FaceViewDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        self.faceView.reset()
-//        self.faceView.delegate = self as? FaceViewDelegate
+        faceView.delegate = self
+        faceView.reset()
         
         self.view.layer.backgroundColor = UIColor.lightGray.cgColor
         self.happiness = DEFAULT_HAPPINESS
