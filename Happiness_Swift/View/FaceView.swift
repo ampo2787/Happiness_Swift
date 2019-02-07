@@ -84,7 +84,7 @@ class FaceView: UIView {
         UIGraphicsPushContext(context)
         
         context.beginPath()
-        context.addArc(center: centerPoint, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: false)
+        context.addArc(center: centerPoint, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
         context.fillPath()
         context.strokePath()
         UIGraphicsPopContext()
@@ -146,7 +146,7 @@ class FaceView: UIView {
         
         let smileOffset:CGFloat = (faceRadius * MOUTH_RadiusRatio) * self.getSmileness()
         mouthLeftControlPoint.y += smileOffset
-        mouthRightControlPoint.y -= smileOffset
+        mouthRightControlPoint.y += smileOffset
         
         context.setLineWidth(0.5)
         UIColor.green.setStroke()
@@ -160,9 +160,9 @@ class FaceView: UIView {
             context.strokePath()
         }
         else{
-            context.addCurve(to: mouthRightPoint, control1: mouthLeftControlPoint, control2: mouthRightControlPoint)
+            context.addCurve(to: mouthRightPoint, control1:mouthLeftControlPoint , control2: mouthRightControlPoint)
             context.move(to: mouthRightPoint)
-            context.addCurve(to: mouthLeftPoint, control1: mouthLeftControlPoint, control2: mouthRightControlPoint)
+            context.addCurve(to: mouthLeftPoint, control1:CGPoint.init(x:mouthRightControlPoint.x, y:mouthRightControlPoint.y-smileOffset/2)  ,control2: CGPoint.init(x:mouthLeftControlPoint.x , y: mouthLeftControlPoint.y-smileOffset/2))
             context.fillPath()
         }
         UIGraphicsPopContext()

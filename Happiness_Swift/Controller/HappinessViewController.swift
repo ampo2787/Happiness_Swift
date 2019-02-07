@@ -24,8 +24,8 @@ class HappinessViewController: UIViewController, FaceViewDelegate{
     let DEFAULT_HAPPINESS = 50
     
     func happinessToSmilness(happiness:Int) -> CGFloat {
-        let ratioOfHappiness:CGFloat = CGFloat((happiness - MIN_HAPPINESS) / (MAX_HAPPINESS - MIN_HAPPINESS))
-        let smileness = ratioOfHappiness * 2.0 - 1.0
+        let ratioOfHappiness:CGFloat = CGFloat(happiness - MIN_HAPPINESS) / CGFloat(MAX_HAPPINESS - MIN_HAPPINESS)
+        let smileness:CGFloat = ratioOfHappiness * 2.0 - 1.0
         return smileness
     }
     
